@@ -2,10 +2,13 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb,booktabs}
 
-% Nov 23: Part 1, up to 3 pages, including Pyomo output for one S instance.
-% Dec 4: Part 2, up to 3 pages, ending with the plan for Part 3.
+% Submission schedule
+% Nov 23: Part 1, up to 3 pages, including Pyomo output for one family S instance.
+% Dec 4:  Part 2, up to 3 pages, ending with the plan for Part 3.
 % Dec 11: Final report, up to 12 pages plus appendices, and the code repository.
-% Record each prediction and the reason before running the experiment.
+%
+% For each experiment, write down your prediction and reasoning before
+% running it. In the report, put the prediction next to the observed result.
 
 \title{
     \large IEOR 262A: Mathematical Optimization\\
@@ -13,8 +16,8 @@
     \LARGE Locating Capacitated Facilities
 }
 \author{
-    \textbf{Team [number]}\\
-    Kenny [last name], [Member 2], [Member 3], [Member 4]\\[0.4em]
+    \textbf{Team 3}\\
+    Kenny Wongchamcharoen, [Member 2], [Member 3], [Member 4]\\[0.4em]
     \normalsize Extension track: [track name]
 }
 \date{}
@@ -30,11 +33,11 @@ the LP relaxation allows a fractionally open facility to ship.
 
 \subsection*{(a) Base model and extension}
 
-Following Definition 5.1.4 of the course notes, let $I$ be the set of
-candidate sites and $J$ the set of customers. Opening site $i$ costs
-$f_i$ and provides capacity $q_i$. Customer $j$ has demand $d_j$, and
-shipping one unit from $i$ to $j$ costs $c_{ij}$. We choose which sites
-to open ($y_i$) and how much to ship from each site to each customer ($x_{ij}$).
+Let $I$ be the set of candidate sites and $J$ the set of customers.
+Opening site $i$ costs $f_i$ and provides capacity $q_i$. Customer $j$
+has demand $d_j$, and shipping one unit from $i$ to $j$ costs $c_{ij}$.
+We choose which sites to open ($y_i$) and how much to ship from each
+site to each customer ($x_{ij}$).
 
 \begin{equation}
 \tag{CFL}
@@ -54,14 +57,16 @@ to open ($y_i$) and how much to ship from each site to each customer ($x_{ij}$).
 
 \paragraph{Extension.}
 % Name the chosen track: A (single sourcing), B (siting rules), or
-% C (modular capacity). Describe the decision it adds, then define any
-% new variables and write the changes to (CFL).
+% C (modular capacity). Describe the operational decision in one sentence.
+% Then define any new variables and write the changes to (CFL).
 
 \paragraph{Family S results.}
+Our assigned seeds are 301, 302, and 303.
 % Family S has 20 sites and 80 customers. Team k uses seeds 100k+1,
 % 100k+2, and 100k+3, with capacity ratios 2, 4, and 8.
-% For the assigned run, record your prediction, inspect fractional openings,
-% and include a short excerpt from the Pyomo output.
+% Before the assigned run, predict how enforcing binary openings will
+% affect cost. Afterward, inspect the fractional y_i values to explain
+% the difference. Include a short Pyomo output excerpt for one team run.
 
 \begin{center}
 \begin{tabular}{lrrrr}
@@ -79,13 +84,16 @@ open or closed raised the minimum cost by $6{,}693.21$ relative to the
 LP relaxation.
 
 \subsection*{(b) Strengthening inequalities}
-% Prove each inequality is valid. Exhibit a fractional point with explicit
-% openings and shipments, verify LP feasibility, and show the violation.
-% State which relaxation implies it. Repeat for the extension.
+% For each proposed inequality, explain why every feasible integer solution
+% satisfies it. Then give a fractional solution: specify what each site
+% opens and ships, check the original LP constraints, and show the violation.
+% State which relaxation implies the inequality. Repeat for the extension.
 
 \subsection*{(c) Single-site convex hull}
-% State the hull, prove both inclusions, and compare with (CFL+).
-% Use the convex-hull notation and definitions in Section 2.4.
+% State your linear description of conv(X) and prove both inclusions.
+% For the reverse inclusion, explain how a point with 0 < y < 1 can be
+% written as a combination of a closed-site point and an open-site point.
+% Identify which inequalities from (b) appear in the hull description.
 
 \section{Lagrangian relaxation}
 
@@ -95,29 +103,32 @@ each customer's demand equation and examine the shipping decision that
 each site would make at those multipliers.
 
 \subsection*{(a) Site subproblems and the greedy rule}
-% Use free multipliers for demand residuals d_j - sum_i x_ij. Collect the
-% terms for one site. Compare the open-site value from the greedy rule
-% (Remark 5.3.3) with the value of keeping it closed.
+% Write the Lagrangian and collect the terms for one site. For an open site,
+% derive the order in which customers receive capacity (Remark 5.3.3).
+% Compare that value with the cost of keeping the site closed.
 
 \subsection*{(b) Concavity and a supergradient}
-% Use the residual from (a) to obtain a supergradient. Verify its defining
-% inequality with the same sign convention as Proposition 4.9.1.
+% Prove concavity of w(lambda). Derive a supergradient from the shipments
+% chosen in (a), checking its sign against your demand-multiplier convention.
 
 \subsection*{(c) Subgradient method and computational bounds}
-% Give the starting multipliers, step sizes, and stopping rule. For S and L,
-% compare the best bound reached against the base LP, strengthened LP, and IP.
-% Carry the chosen extension through the comparison.
+% Give the initial multipliers, step size, and stopping rule. For S and L,
+% compare the best bound actually reached with the base LP, strengthened
+% LP, and IP values. Explain how the chosen track changes the computation.
 
 \subsection*{(d) Shipment bounds and initialization from LP duals}
-% Remove x_ij <= d_j and repeat. Interpret the bounds using Part 1(c) and
-% Proposition 4.8.3. Report the initial and best values for the LP-dual start.
+% Remove x_ij <= d_j and repeat the comparison. Use Part 1(c) and
+% Proposition 4.8.3 to explain the bounds. When initializing from the
+% strengthened LP's demand duals, record the very first value of w as
+% well as the best value reached.
 
 \subsection*{(e) Aggregate capacity and the knapsack bound}
-% Is total open capacity >= total demand implied by the LP? Retain it in
-% the Lagrangian problem, solve the resulting binary knapsack exactly,
-% and explain what happens to the bound.
+% Check whether total open capacity >= total demand is implied by the
+% original LP. Retain it in the Lagrangian problem, derive the binary
+% knapsack, solve it exactly, and explain the change in the bound.
 
-% For the Dec 4 submission, end this part with your Part 3 experiment plan.
+% For the Dec 4 submission, end this part with a short plan for Part 3.
+% Specify who will run each comparison and which quantities the logs must save.
 
 \section{LP gaps, branch and cut, and scaling}
 
@@ -126,44 +137,49 @@ require different amounts of search to prove optimality. We compare their
 LP bounds, then use Gurobi's logs to see when an incumbent is found, how
 the best bound changes, and how many nodes are explored.
 
-% Baseline: Presolve=0, Cuts=0, Heuristics=0. For (b)--(e), reuse one
-% baseline and run eight variants for each instance and formulation.
+% Baseline: Presolve=0, Cuts=0, Heuristics=0.
+% Parts (b)--(e) use nine runs per instance and formulation: one shared
+% baseline and eight variants. Change one setting or add one MIP start
+% at a time so that each comparison has a clear interpretation.
 
 \subsection*{(a) Integrality gaps and capacity ratios}
-% Compute (z_IP - z_LP)/z_IP. Illustrate the ratio effect with a small example.
+% Compute (z_IP - z_LP)/z_IP for the base and strengthened formulations.
+% Use a small example to explain the effect of changing the capacity ratio.
 
 \subsection*{(b) Primal heuristics and pruning}
-% Compare baseline with Heuristics=0.05. Record nodes, root gaps, and time.
-% Explain pruning using Theorem 5.3.1.
+% Compare baseline with Heuristics=0.05. Report root gaps, nodes, and
+% runtime. Use Theorem 5.3.1 to explain which nodes an incumbent can prune.
 
 \subsection*{(c) Branching rules and a MIP start}
-% Compare default, VarBranch=2, and VarBranch=3 (Remark 5.3.5).
-% Describe your feasible start and measure its effect on the tree.
+% Compare default branching, VarBranch=2, and VarBranch=3 (Remark 5.3.5).
+% Describe your own feasible starting solution, report its objective, and
+% measure what happens to the tree when Gurobi receives it as a MIP start.
 
 \subsection*{(d) Node selection}
-% Compare baseline with MIPFocus=1 and MIPFocus=3. Report nodes, total time,
-% and time to first incumbent. Plot incumbent and bound against nodes for
-% one instance. Explain which child a dive should visit first.
+% Compare baseline, MIPFocus=1, and MIPFocus=3. Report nodes, runtime, and
+% time to first incumbent. Plot incumbent and best bound against nodes for
+% one instance. Explain which child you would explore first in a dive.
 
 \subsection*{(e) Root cuts}
-% Compare Cuts=2 with Cuts=0 and ImpliedCuts=2. Report end-of-root bounds,
-% fraction of root gap closed, nodes, time, and cut classes. Discuss cover
-% cuts and compare the implied-bound result with the strengthened LP.
+% Compare Cuts=2 with Cuts=0 and ImpliedCuts=2. Read the bound at the end
+% of the root node. Report the fraction of the gap closed, cut classes,
+% nodes, and time. Compare the implied-bound result with the strengthened LP.
+% Did cover cuts appear? Did the strongest root bound give the fastest solve?
 
 \subsection*{(f) Scaling with the number of sites}
-% Use 20, 40, 60, 80, and 100 sites and five customers per site. State the
-% time limit. Plot nodes and time on log scales and include 2^|I| as reference.
+% Use 20, 40, 60, 80, and 100 sites, with five customers per site.
+% Give the time limit and identify runs that reached it. Plot nodes and
+% runtime on logarithmic scales, with 2^|I| as the enumeration benchmark.
 
 \section*{Consistency checks}
-% Name each repository test and report its outcome. Explain any failed check.
+% Give the repository test and result for each check: feasible solutions,
+% valid lower bounds, and agreement across runs that proved optimality.
+% If a check fails, report the case and explain what happened.
 
 \section*{Sources and AI use}
-Alper Atamt\"urk, \emph{A Graduate Course in Mathematical Optimization},
-course notes dated November 17, 2026.
-% Cite results by number where used. Identify other sources and tools.
-% ChatGPT (OpenAI Codex, GPT-6) assisted with Gurobi setup, the seed-1
-% check, the report outline, and repository setup including tests/test_setup.py.
-% Complete this disclosure with the team's subsequent use before submission.
+% Cite course results by number where you use them. List other sources
+% and tools with their purpose. For AI use, name the platform and model
+% version and identify the sections, code, or figures it helped with.
 
 \section*{Team contributions}
 % Give each member a sentence identifying the code and text they wrote.
