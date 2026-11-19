@@ -1,23 +1,43 @@
 \documentclass[11pt]{article}
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb,booktabs}
+\usepackage{amsthm}
+\usepackage[breakable]{tcolorbox}
 
+\theoremstyle{definition}
+\newtheorem{proposition}{Proposition}
+
+\tcolorboxenvironment{proposition}{
+    breakable,
+    colback=white,
+    colframe=black!50,
+    boxrule=0.4pt,
+    sharp corners
+}
+
+\newtcolorbox{proofbox}{
+    breakable,
+    colback=white,
+    colframe=black!50,
+    boxrule=0.4pt,
+    sharp corners
+}
 % Submission schedule
 % Nov 23: Part 1, up to 3 pages, including Pyomo output for one family S instance.
 % Dec 4:  Part 2, up to 3 pages, ending with the plan for Part 3.
 % Dec 11: Final report, up to 12 pages plus appendices, and the code repository.
 %
-% For each experiment, write down your prediction and reasoning before
+% For each experiment, write down the prediction and reasoning before
 % running it. In the report, put the prediction next to the observed result.
 
 \title{
-    \large IEOR 262A: Mathematical Optimization\\
+    \large IEOR 262A: Mathematical Programming I\\
     Fall 2026 Group Project\\[0.7em]
-    \LARGE Locating Capacitated Facilities
+    \LARGE Locating Capacitated Facilities: Bounds, Duality, and Branch and Bound
 }
 \author{
     \textbf{Team 3}\\
-    Kenny Wongchamcharoen, Ashlee Liu, Helen Chang, [Member 4]\\[0.4em]
+    Kenny Wongchamcharoen, Ashlee Liu, Helen Chang, Charmaine Yuen\\[0.4em]
     \normalsize Extension track: [track name]
 }
 \date{}
@@ -67,6 +87,7 @@ Our assigned seeds are 301, 302, and 303.
 % Before the assigned run, predict how enforcing binary openings will
 % affect cost. Afterward, inspect the fractional y_i values to explain
 % the difference. Include a short Pyomo output excerpt for one team run.
+For family S with ratio 4 and seed 301, we predict that the LP relaxation will have a lower optimal cost than the integer model. We also expect a strict gap because the LP can use part of a site’s capacity and pay only the corresponding fraction of its opening cost. A site that serves only a few nearby customers can be worth opening fractionally in the LP. In the integer model, though, serving those customers from that site requires paying its entire opening cost.
 
 \begin{center}
 \begin{tabular}{lrrrr}
@@ -88,6 +109,39 @@ LP relaxation.
 % satisfies it. Then give a fractional solution: specify what each site
 % opens and ships, check the original LP constraints, and show the violation.
 % State which relaxation implies the inequality. Repeat for the extension.
+\begin{proposition}
+Inspired by the disaggregated formulation in Example~5.4.1 in the
+lecture note, we decided to strengthen (CFL) by adding
+\[
+    x_{ij} \le d_j y_i, \qquad i\in I,\ j\in J.
+\]
+We call the resulting formulation $(\mathrm{CFL}^+)$.
+\end{proposition}
+The original
+aggregated capacity constraint limits the total amount shipped from site $i$. Our new inequality also limits the share of customer $j$'s demand
+that site $i$ can supply. For example, if site $i$ is 20\% open
+in the LP relaxation ($y_i=0.2$), it can supply at most 20\% of
+each customer's demand.
+
+\begin{proofbox}
+\emph{Proof.}
+We show that the inequalities that we propose are valid. Let $(x,y)$ be feasible for (CFL) in Definition~5.1.4, and fix
+$i\in I$ and $j\in J$. If $y_i=0$, then nonnegativity and the
+capacity constraint give
+\[
+    0 \le x_{ij} \le \sum_{k\in J} x_{ik} \le q_i y_i = 0.
+\]
+If $y_i=1$, then nonnegativity and the demand constraint give
+\[
+    x_{ij} \le \sum_{h\in I} x_{hj} = d_j = d_j y_i.
+\]
+Thus $x_{ij}\le d_j y_i$ in both cases. Now, we give a fractional solution to the LP relaxation of (CFL). Consider one site with capacity $q_1=100$ and one customer with demand $d_1=20$. Set $y_1=1/5$ and $x_{11}=20$. The site is one fifth open and ships all 20 units to the customer. This point satisfies the original LP relaxation as demand is met, $0\le y_1\le 1$, and $x_{11}=20\le 100(1/5)=20$. However, the new inequality requires
+\[
+    x_{11} \le d_1 y_1 = 20(1/5)=4,
+\]
+which is clearly violated. Our example above shows that the LP relaxation of (CFL) does not imply $x_{ij}\le d_jy_i$ in general. However, the LP relaxation of $(\mathrm{CFL}^+)$ implies the inequality because it includes this constraint for every site-customer pair.
+\hfill$\square$
+\end{proofbox}
 
 \subsection*{(c) Single-site convex hull}
 % State your linear description of conv(X) and prove both inclusions.
