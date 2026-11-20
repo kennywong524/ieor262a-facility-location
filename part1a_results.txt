@@ -1,0 +1,116 @@
+Family S | ratio 2 | seed 301 | site IDs are zero-based
+Gurobi options: Presolve=0, Cuts=0, Heuristics=0
+
+CFL: LP = 52011.68, IP = 54923.98, LP gap = 5.30%
+IP open sites: [1, 5, 7, 9, 10, 17]
+Fractional LP y: 1=0.9400, 5=0.9558, 6=0.1878, 8=0.4982, 10=0.2554, 16=0.1289, 17=0.7687
+
+CFL-C: LP = 44116.68, IP = 52864.05, LP gap = 16.55%
+IP small sites: [8, 9]
+IP large sites: [5, 7]
+Fractional LP s: none
+Fractional LP ell: 1=0.4300, 5=0.4779, 6=0.0939, 7=0.5119, 8=0.2123, 9=0.6000, 10=0.1277, 17=0.3843
+
+Family S | ratio 4 | seed 301 | site IDs are zero-based
+Gurobi options: Presolve=0, Cuts=0, Heuristics=0
+
+CFL: LP = 40480.69, IP = 49932.72, LP gap = 18.93%
+IP open sites: [5, 7, 9]
+Fractional LP y: 1=0.4307, 5=0.4789, 6=0.0939, 7=0.5119, 8=0.2123, 9=0.5990, 10=0.1280, 17=0.3843
+
+CFL-C: LP = 34970.51, IP = 49932.72, LP gap = 29.96%
+IP small sites: [5, 7, 9]
+IP large sites: []
+Fractional LP s: none
+Fractional LP ell: 1=0.2154, 5=0.2394, 6=0.0612, 7=0.2313, 8=0.1105, 9=0.2631, 10=0.0900, 16=0.0412, 17=0.1922
+
+Family S | ratio 8 | seed 301 | site IDs are zero-based
+Gurobi options: Presolve=0, Cuts=0, Heuristics=0
+
+CFL: LP = 32370.20, IP = 47559.01, LP gap = 31.94%
+IP open sites: [1, 15]
+Fractional LP y: 1=0.2102, 5=0.2394, 6=0.0612, 7=0.2313, 8=0.0896, 9=0.2544, 10=0.1161, 16=0.0554, 17=0.1978
+
+CFL-C: LP = 28399.28, IP = 47559.01, LP gap = 40.29%
+IP small sites: [1, 15]
+IP large sites: []
+Fractional LP s: none
+Fractional LP ell: 1=0.1051, 5=0.1197, 6=0.0148, 7=0.1156, 8=0.0448, 9=0.1046, 10=0.0580, 11=0.0196, 12=0.0314, 16=0.0490, 17=0.0989
+
+Family S | ratio 2 | seed 302 | site IDs are zero-based
+Gurobi options: Presolve=0, Cuts=0, Heuristics=0
+
+CFL: LP = 64019.53, IP = 66032.07, LP gap = 3.05%
+IP open sites: [1, 2, 8, 12, 13, 14, 16, 18]
+Fractional LP y: 2=0.3529, 3=0.7500, 4=0.6273, 6=0.3371, 7=0.2273, 8=0.4657, 10=0.4292, 14=0.2694, 16=0.2708, 19=0.7670
+
+CFL-C: LP = 52755.40, IP = 58879.26, LP gap = 10.40%
+IP small sites: [2]
+IP large sites: [1, 12, 13]
+Fractional LP s: none
+Fractional LP ell: 1=0.6076, 2=0.1765, 4=0.1553, 6=0.1601, 7=0.0612, 8=0.1422, 10=0.2146, 12=0.6885, 13=0.7260, 14=0.1347, 16=0.2135, 18=0.3769, 19=0.2791
+
+Family S | ratio 4 | seed 302 | site IDs are zero-based
+Gurobi options: Presolve=0, Cuts=0, Heuristics=0
+
+CFL: LP = 48067.26, IP = 54653.38, LP gap = 12.05%
+IP open sites: [1, 12, 18, 19]
+Fractional LP y: 1=0.4930, 2=0.1762, 3=0.1255, 4=0.2291, 6=0.1606, 7=0.0612, 8=0.1667, 10=0.2141, 12=0.6721, 13=0.7277, 14=0.1351, 16=0.2141, 18=0.3755, 19=0.2791
+
+CFL-C: LP = 40937.09, IP = 54092.31, LP gap = 24.32%
+IP small sites: [12, 13]
+IP large sites: [16]
+Fractional LP s: none
+Fractional LP ell: 1=0.2136, 2=0.0881, 3=0.1236, 4=0.1146, 6=0.0803, 7=0.0306, 8=0.0833, 10=0.1071, 12=0.3156, 13=0.3638, 14=0.0675, 16=0.1070, 18=0.2356, 19=0.1396
+
+Family S | ratio 8 | seed 302 | site IDs are zero-based
+Gurobi options: Presolve=0, Cuts=0, Heuristics=0
+
+CFL: LP = 37555.17, IP = 52161.78, LP gap = 28.00%
+IP open sites: [12, 16]
+Fractional LP y: 1=0.2136, 2=0.0691, 3=0.1234, 4=0.1147, 6=0.0803, 7=0.0393, 8=0.0834, 10=0.1072, 12=0.3156, 13=0.3234, 14=0.0675, 16=0.1226, 18=0.3033, 19=0.1397
+
+CFL-C: LP = 32437.37, IP = 52161.78, LP gap = 37.81%
+IP small sites: [12, 16]
+IP large sites: []
+Fractional LP s: none
+Fractional LP ell: 1=0.0933, 2=0.0285, 3=0.0617, 4=0.0783, 6=0.0401, 7=0.0258, 8=0.0417, 10=0.0536, 12=0.1508, 13=0.1549, 14=0.0338, 16=0.0613, 18=0.1795, 19=0.0699
+
+Family S | ratio 2 | seed 303 | site IDs are zero-based
+Gurobi options: Presolve=0, Cuts=0, Heuristics=0
+
+CFL: LP = 59896.08, IP = 62480.18, LP gap = 4.14%
+IP open sites: [0, 3, 5, 7, 8, 12, 16, 19]
+Fractional LP y: 0=0.3434, 1=0.4226, 3=0.9121, 4=0.6636, 6=0.2839, 7=0.7898, 13=0.2143, 16=0.2430, 17=0.4577, 19=0.3704
+
+CFL-C: LP = 50131.97, IP = 56167.19, LP gap = 10.75%
+IP small sites: [0, 13]
+IP large sites: [5, 8, 12]
+Fractional LP s: none
+Fractional LP ell: 0=0.2048, 1=0.1906, 3=0.2657, 4=0.2742, 5=0.6462, 6=0.0699, 7=0.2955, 8=0.7514, 10=0.1241, 12=0.4952, 13=0.1071, 16=0.1215, 17=0.2289, 19=0.1852
+
+Family S | ratio 4 | seed 303 | site IDs are zero-based
+Gurobi options: Presolve=0, Cuts=0, Heuristics=0
+
+CFL: LP = 45631.24, IP = 52167.99, LP gap = 12.53%
+IP open sites: [0, 5, 6, 12]
+Fractional LP y: 0=0.2048, 1=0.1906, 3=0.2662, 4=0.2736, 5=0.6462, 6=0.0699, 7=0.2946, 8=0.7514, 10=0.1236, 12=0.4952, 13=0.1074, 16=0.1215, 17=0.2294, 19=0.1852
+
+CFL-C: LP = 38886.96, IP = 51876.02, LP gap = 25.04%
+IP small sites: [5, 13]
+IP large sites: [8]
+Fractional LP s: none
+Fractional LP ell: 0=0.1024, 1=0.0868, 3=0.1331, 4=0.1368, 5=0.3231, 6=0.0350, 7=0.1473, 8=0.3757, 10=0.0618, 12=0.2476, 13=0.0537, 16=0.0697, 17=0.1147, 19=0.0926
+
+Family S | ratio 8 | seed 303 | site IDs are zero-based
+Gurobi options: Presolve=0, Cuts=0, Heuristics=0
+
+CFL: LP = 35712.13, IP = 50366.94, LP gap = 29.10%
+IP open sites: [6, 7]
+Fractional LP y: 0=0.1523, 1=0.0557, 3=0.1331, 4=0.1368, 5=0.3227, 6=0.0350, 7=0.1473, 8=0.3752, 10=0.0618, 12=0.2476, 13=0.0537, 16=0.0697, 17=0.1147, 19=0.0926
+
+CFL-C: LP = 30928.04, IP = 50366.94, LP gap = 38.59%
+IP small sites: [6, 7]
+IP large sites: []
+Fractional LP s: none
+Fractional LP ell: 0=0.0762, 1=0.0278, 3=0.0666, 4=0.0684, 5=0.1808, 6=0.0175, 7=0.0737, 8=0.1876, 10=0.0309, 12=0.1238, 13=0.0268, 16=0.0348, 17=0.0368, 19=0.0463

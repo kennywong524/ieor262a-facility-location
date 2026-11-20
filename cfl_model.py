@@ -32,20 +32,29 @@ GUROBI_SETTINGS = {'Presolve': 0, 'Cuts': 0, 'Heuristics': 0}
 INSTANCES = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instances')
 
 
-def build_cfl(inst, relax=False):
-    """Formulation (CFL) of the handout.  relax=True gives its LP relaxation."""
+def build_cfl(inst, relax=False, *, modular=False):
+    """Build (CFL) or Track C's (CFL-C), with an optional LP relaxation."""
     M = pyo.ConcreteModel()
     M.I = pyo.Set(initialize=inst['I'])
     M.J = pyo.Set(initialize=inst['J'])
-    M.y = pyo.Var(M.I, bounds=(0, 1), within=pyo.Reals if relax else pyo.Binary)
+    opening_domain = pyo.UnitInterval if relax else pyo.Binary
+    if modular:
+        M.s = pyo.Var(M.I, within=opening_domain)
+        M.ell = pyo.Var(M.I, within=opening_domain)
+        M.one_size = pyo.Constraint(M.I, rule=lambda m, i: m.s[i] + m.ell[i] <= 1)
+        fixed_cost = sum(inst['f'][i] * M.s[i] + inst['f2'][i] * M.ell[i] for i in M.I)
+        capacity = {i: inst['q'][i] * M.s[i] + inst['q2'][i] * M.ell[i] for i in M.I}
+    else:
+        M.y = pyo.Var(M.I, within=opening_domain)
+        fixed_cost = sum(inst['f'][i] * M.y[i] for i in M.I)
+        capacity = {i: inst['q'][i] * M.y[i] for i in M.I}
     M.x = pyo.Var(M.I, M.J, within=pyo.NonNegativeReals)
     M.obj = pyo.Objective(
-        expr=sum(inst['f'][i] * M.y[i] for i in M.I)
+        expr=fixed_cost
         + sum(inst['c'][i, j] * M.x[i, j] for i in M.I for j in M.J))
     M.demand = pyo.Constraint(M.J, rule=lambda M, j: sum(M.x[i, j] for i in M.I) == inst['d'][j])
-    M.capacity = pyo.Constraint(M.I, rule=lambda M, i: sum(M.x[i, j] for j in M.J) <= inst['q'][i] * M.y[i])
+    M.capacity = pyo.Constraint(M.I, rule=lambda M, i: sum(M.x[i, j] for j in M.J) <= capacity[i])
     # TODO (Part 1(b)): add the inequalities of your strengthened formulation (CFL+)
-    # TODO (Part 1(a)): a second function for the formulation of your extension track
     if relax:
         M.dual = pyo.Suffix(direction=pyo.Suffix.IMPORT)   # LP duals, read after solving
     return M
@@ -63,19 +72,21 @@ def write_lp(M, filename):
     return path
 
 
-def solve(M, display=False, lp_file=None, **params):
+def solve(M, display=False, lp_file=None, *, require_optimal=False, **params):
     """Solve M with Gurobi under GUROBI_SETTINGS plus the given parameters.
     If lp_file is given, M is first written to instances/lp_file in LP format.
     display=True prints Gurobi's log, which for an integer program is the
     branch-and-bound trace: one line per reported node with the incumbent,
     the best bound and the gap.  Returns the optimal value, Gurobi's node
-    count and the solution time."""
+    count and the solution time. Set require_optimal to reject an unfinished solve."""
     if lp_file:
         write_lp(M, lp_file)
     opt = pyo.SolverFactory('gurobi_direct')
     t = time.time()
-    opt.solve(M, tee=display,
-              options={'OutputFlag': int(display), **GUROBI_SETTINGS, **params})
+    results = opt.solve(M, tee=display,
+                        options={'OutputFlag': int(display), **GUROBI_SETTINGS, **params})
+    if require_optimal:
+        pyo.assert_optimal_termination(results)
     return pyo.value(M.obj), opt._solver_model.NodeCount, time.time() - t
 
 
