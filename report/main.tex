@@ -1,60 +1,38 @@
 \documentclass[11pt]{article}
-\usepackage[margin=1in]{geometry}
-\usepackage{amsmath,amssymb,booktabs}
-\usepackage{amsthm}
+\usepackage[margin=0.6in]{geometry}
+\usepackage{amsmath,amssymb,booktabs,amsthm}
 \usepackage[breakable]{tcolorbox}
+\usepackage{fvextra}
 
 \theoremstyle{definition}
 \newtheorem{proposition}{Proposition}
-
 \tcolorboxenvironment{proposition}{
-    breakable,
-    colback=white,
-    colframe=black!50,
-    boxrule=0.4pt,
-    sharp corners
+    breakable, colback=white, colframe=black!50,
+    boxrule=0.3pt, sharp corners
 }
-
 \newtcolorbox{proofbox}{
-    breakable,
-    colback=white,
-    colframe=black!50,
-    boxrule=0.4pt,
-    sharp corners
+    breakable, colback=white, colframe=black!50,
+    boxrule=0.4pt, sharp corners
 }
-% Submission schedule
-% Nov 23: Part 1, up to 3 pages, including Pyomo output for one family S instance.
-% Dec 4:  Part 2, up to 3 pages, ending with the plan for Part 3.
-% Dec 11: Final report, up to 12 pages plus appendices, and the code repository.
-%
-% For each experiment, write down the prediction and reasoning before
-% running it. In the report, put the prediction next to the observed result.
-
-\title{
-    \large IEOR 262A: Mathematical Programming I\\
-    Fall 2026 Group Project\\[0.7em]
-    \LARGE Locating Capacitated Facilities: Bounds, Duality, and Branch and Bound
-}
-\author{
-    \textbf{Team 3}\\
-    Kenny Wongchamcharoen, Ashlee Liu, Helen Chang, Charmaine Yuen\\[0.4em]
-    \normalsize Extension track: Track C (modular capacity)
-}
-\date{}
 
 \begin{document}
-\maketitle
+
+\begingroup
+\setlength{\parindent}{0pt}
+\large
+IEOR 262A: Mathematical Programming I \hfill Fall 2026 Group Project\par
+\vspace{6pt}
+{\huge\bfseries Locating Capacitated Facilities\par}
+\vspace{2pt}
+Bounds, Duality, and Branch and Bound \hfill Track C: Modular Capacity\par
+\vspace{6pt}
+\textbf{Team 3}\quad Kenny Wongchamcharoen, Ashlee Liu, Helen Chang, Charmaine Yuen\par
+\endgroup
+
+% existing report starts here.
 
 \section{Base model}
-
-Opening another facility can reduce shipping costs, but the savings must
-justify its fixed cost. We model this trade-off first. We then examine what the LP relaxation allows a fractionally open facility to ship. The original problem is written below.
-
-Let $I$ be the set of candidate sites and $J$ the set of customers.
-Opening site $i$ costs $f_i$ and provides capacity $q_i$. Customer $j$
-has demand $d_j$, and shipping one unit from $i$ to $j$ costs $c_{ij}$.
-We choose which sites to open ($y_i$) and how much to ship from each
-site to each customer ($x_{ij}$).
+Let $I$ be the set of candidate sites and $J$ the set of customers. Opening site $i$ costs $f_i$ and provides capacity $q_i$. Customer $j$ has demand $d_j$, and shipping one unit from $i$ to $j$ costs $c_{ij}$. We choose which sites to open ($y_i$) and how much to ship from each site to each customer ($x_{ij}$).
 
 \begin{equation}
 \tag{CFL}
@@ -77,9 +55,7 @@ site to each customer ($x_{ij}$).
 % C (modular capacity). Describe the operational decision in one sentence.
 % Then define any new variables and write the changes to (CFL).
 We choose Track C (modular capacity). At each candidate site $i\in I$,
-we may build a small facility, build a large facility, or leave the
-site closed. A small facility at site $i$ has capacity $q_i$ and
-fixed cost $f_i$. A large facility at the same site has capacity
+we may build a small facility, a large facility, or leave the site closed. A small facility at site $i$ has capacity $q_i$ and fixed cost $f_i$. A large facility at the same site has capacity
 $q_i^{(2)}$ and fixed cost $f_i^{(2)}$.
 
 For each $i\in I$, define the binary decision variables
@@ -121,29 +97,48 @@ amount shipped from site $i\in I$ to customer $j\in J$. We formulate the modular
 }
 \tag{CFL-C}
 \]
-\paragraph{Family S results.}
-Our assigned seeds are 301, 302, and 303.
-% Family S has 20 sites and 80 customers. Team k uses seeds 100k+1,
-% 100k+2, and 100k+3, with capacity ratios 2, 4, and 8.
-% Before the assigned run, predict how enforcing binary openings will
-% affect cost. Afterward, inspect the fractional y_i values to explain
-% the difference. Include a short Pyomo output excerpt for one team run.
-For family S with ratio 4 and seed 301, we predict that the LP relaxation will have a lower optimal cost than the integer model. We also expect a strict gap because the LP can use part of a site’s capacity and pay only the corresponding fraction of its opening cost. A site that serves only a few nearby customers can be worth opening fractionally in the LP. In the integer model, though, serving those customers from that site requires paying its entire opening cost. 
 
-\begin{center}
-\begin{tabular}{lrrrr}
-\toprule
-Instance & Ratio & Seed & LP objective & IP objective \\
-\midrule
-Setup check   & 4 & 1 & 42,533.67 & 49,226.88 \\
-Team instance &   &   &           &           \\
-\bottomrule
-\end{tabular}
-\end{center}
+\emph{Prediction.}
+We will run family S with ratio 4 and seed 301 as the one instance using Pyomo and Gurobi. Since every feasible integer solution is feasible in the LP relaxation, the LP optimum is a lower bound on the integer optimum. We expect this bound to be strict because a fractionally open site pays only part of its fixed cost. We also expect Track C to lower the LP objective relative to (CFL).
+The data generator sets $q_i^{(2)}=2q_i$ and $f_i^{(2)}\approx 1.6f_i$,
+so the fixed cost per unit of capacity for a large facility is
+\[
+    \frac{f_i^{(2)}}{q_i^{(2)}} \approx \frac{1.6f_i}{2q_i}
+    = 0.8\,\frac{f_i}{q_i}.
+\]
+Thus, by opening half a large facility, the LP can obtain the same
+capacity as one small facility and pay about 20\% less in fixed cost.
 
-The setup run opened sites 3, 5, and 12. Requiring each site to be fully
-open or closed raised the minimum cost by $6{,}693.21$ relative to the
-LP relaxation.
+\emph{Result.}
+As predicted, requiring binary openings raised the base model's
+optimal cost by $9{,}452.03$. For example, the LP shipped 258 units
+from site 1 and paid only $y_1=258/599\approx 0.431$ of its fixed
+cost. The integer solution closed site 1 and opened sites 5, 7,
+and 9. Track C lowered the LP objective to $34{,}970.51$ by using
+fractional large facilities. Its integer optimum remained
+$49{,}932.72$, with small facilities at the same three sites. As predicted, the LP cost fell from $40{,}480.69$ in the base model
+to $34{,}970.51$ in Track C. The integer optimum stayed at
+$49{,}932.72$ because the optimal Track C solution still used only
+small facilities at sites 5, 7, and 9.
+
+\emph{Pyomo output for (CFL) and (CFL-C):}
+
+\begin{proofbox}
+\begin{Verbatim}[breaklines=true,fontsize=\small]
+Family S | ratio 4 | seed 301 | site IDs are zero-based
+Gurobi options: Presolve=0, Cuts=0, Heuristics=0
+
+CFL: LP = 40480.69, IP = 49932.72, LP gap = 18.93%
+IP open sites: [5, 7, 9]
+Fractional LP y: 1=0.4307, 5=0.4789, 6=0.0939, 7=0.5119, 8=0.2123, 9=0.5990, 10=0.1280, 17=0.3843
+
+CFL-C: LP = 34970.51, IP = 49932.72, LP gap = 29.96%
+IP small sites: [5, 7, 9]
+IP large sites: []
+Fractional LP s: none
+Fractional LP ell: 1=0.2154, 5=0.2394, 6=0.0612, 7=0.2313, 8=0.1105, 9=0.2631, 10=0.0900, 16=0.0412, 17=0.1922
+\end{Verbatim}
+\end{proofbox}
 
 \subsection*{(b) Strengthening inequalities}
 % For each proposed inequality, explain why every feasible integer solution
@@ -193,8 +188,7 @@ We call the resulting formulation $(\mathrm{CFL\text{-}C}^{+})$.
 \end{proposition}
 
 In the base model, $y_i$ indicates whether site $i$ is open.
-In Track C, $s_i+\ell_i$ plays the same role: it equals one if
-the site is built at either size and zero if it is closed. The
+In Track C, $s_i+\ell_i$ plays the same role as $y_i$. It is equal to one if the site is built at either size and zero if it is closed. The
 new inequality therefore limits the share of customer $j$'s demand
 that site $i$ can supply, whichever size is chosen.
 
@@ -237,6 +231,37 @@ because it includes this bound for every site--customer pair.
 % For the reverse inclusion, explain how a point with 0 < y < 1 can be
 % written as a combination of a closed-site point and an open-site point.
 % Identify which inequalities from (b) appear in the hull description.
+\begin{proposition}
+Fix one site of capacity $q$. Let $X$ be its feasible set, given by
+$y\in\{0,1\}$, $\sum_{j\in J}x_j\le qy$, and $0\le x_j\le d_j$ for
+each $j\in J$. Then $\operatorname{conv}(X)$ is the polyhedron $P$
+defined by
+\[
+  0\le y\le 1,\qquad
+  \sum_{j\in J}x_j\le qy,\qquad
+  0\le x_j\le d_jy \quad (j\in J).
+\]
+\end{proposition}
+In comparison with $(\mathrm{CFL}^+)$, we observe that for each site $i$, the valid inequalities $x_{ij}\le d_jy_i$ from part (b), together with the capacity and variable bounds, give $\operatorname{conv}(X)$ exactly.
+\begin{proofbox}
+\emph{Proof.}
+($\Rightarrow$) We first show $\operatorname{conv}(X)\subseteq P$. For $(x,y)\in X$, a closed site ($y=0$) ships zero unit ($x_j = 0 \ \forall j \in J$) and an open site ($y=1$) satisfies $x_j\le d_j$. Thus $x_j\le d_jy$ in either case, so $X\subseteq P$. Since $P$ is an intersection of half-spaces, it is convex by Proposition~2.4.1(a) in the textbook. By
+Definition~2.4.3, $\operatorname{conv}(X)$ is the smallest convex
+set containing $X$, so $\operatorname{conv}(X)\subseteq P$.
+
+($\Leftarrow$)
+We now show $P\subseteq\operatorname{conv}(X)$. Fix $(x,y)\in P$. If $y=0$, then $x=0$ and
+$(x,y)=(0,0)\in X$. For $y>0$, our goal is to show that $(x,y)\in\operatorname{conv}(X)$ by writing it as a convex combination of two points in $X$. We use the closed point $(0,0)$ and a feasible open point $(u,1)$. To obtain $y$ in the last coordinate, we give the open point weight $y$ and the closed point weight $1-y$. The shipment coordinates then require $x_j=yu_j$, so we set $u_j=x_j/y$ for each $j\in J$. It remains to check that $(u,1)\in X$. Dividing the shipment and capacity bounds in $P$ by $y$ gives $0\le u_j\le d_j$ for each
+$j\in J$ and $\sum_{j\in J}u_j\le q$. Thus $(u,1)\in X$, and we have
+\[
+  (x,y)=(1-y)(0,0)+y(u,1).
+\]
+Both points belong to $X$, and their weights are nonnegative and
+sum to one. By Definitions~2.4.2 and~2.4.3, $(x,y)$ is in
+$\operatorname{conv}(X)$. Since $(x,y)\in P$ was arbitrary,
+$P\subseteq\operatorname{conv}(X)$.\qed
+\end{proofbox}
+
 
 \section{Lagrangian relaxation}
 
