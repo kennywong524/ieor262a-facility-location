@@ -1,4 +1,4 @@
-# IEOR 262A · Locating Capacitated Facilities
+# IEOR 262A: Locating Capacitated Facilities Course Project
 
 Team 3's Fall 2026 group project on capacitated facility location, Lagrangian bounds, and branch and bound. Our extension is Track C (modular capacity).
 
