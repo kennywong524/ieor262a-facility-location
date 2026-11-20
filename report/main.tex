@@ -38,20 +38,17 @@
 \author{
     \textbf{Team 3}\\
     Kenny Wongchamcharoen, Ashlee Liu, Helen Chang, Charmaine Yuen\\[0.4em]
-    \normalsize Extension track: [track name]
+    \normalsize Extension track: Track C (modular capacity)
 }
 \date{}
 
 \begin{document}
 \maketitle
 
-\section{Modeling and a stronger formulation}
+\section{Base model}
 
 Opening another facility can reduce shipping costs, but the savings must
-justify its fixed cost. We model this trade-off first. We then examine what
-the LP relaxation allows a fractionally open facility to ship.
-
-\subsection*{(a) Base model and extension}
+justify its fixed cost. We model this trade-off first. We then examine what the LP relaxation allows a fractionally open facility to ship. The original problem is written below.
 
 Let $I$ be the set of candidate sites and $J$ the set of customers.
 Opening site $i$ costs $f_i$ and provides capacity $q_i$. Customer $j$
@@ -75,11 +72,55 @@ site to each customer ($x_{ij}$).
 \end{aligned}
 \end{equation}
 
-\paragraph{Extension.}
+\subsection*{(a) Extension and a stronger formulation}
 % Name the chosen track: A (single sourcing), B (siting rules), or
 % C (modular capacity). Describe the operational decision in one sentence.
 % Then define any new variables and write the changes to (CFL).
+We choose Track C (modular capacity). At each candidate site $i\in I$,
+we may build a small facility, build a large facility, or leave the
+site closed. A small facility at site $i$ has capacity $q_i$ and
+fixed cost $f_i$. A large facility at the same site has capacity
+$q_i^{(2)}$ and fixed cost $f_i^{(2)}$.
 
+For each $i\in I$, define the binary decision variables
+\[
+s_i =
+\begin{cases}
+1, & \text{if a small facility is built at site } i,\\
+0, & \text{otherwise},
+\end{cases}
+\qquad
+\ell_i =
+\begin{cases}
+1, & \text{if a large facility is built at site } i,\\
+0, & \text{otherwise}.
+\end{cases}
+\]
+We impose $s_i+\ell_i\le 1$ for each $i\in I$, so at most one
+facility size may be chosen at a site. The choice $(s_i,\ell_i)=(0,0)$
+leaves site $i$ closed. As in (CFL), $x_{ij}\ge 0$ denotes the
+amount shipped from site $i\in I$ to customer $j\in J$. We formulate the modular capacity problem as
+\[
+\boxed{
+\begin{aligned}
+\min_{x,s,\ell}\quad
+    & \sum_{i\in I} \bigl(f_i s_i + f_i^{(2)}\ell_i\bigr)
+      + \sum_{i\in I}\sum_{j\in J} c_{ij}x_{ij} \\[0.6em]
+\text{s.t.}\quad
+    & \sum_{i\in I} x_{ij} = d_j
+    && j\in J, \\
+    & \sum_{j\in J} x_{ij} \le q_i s_i + q_i^{(2)}\ell_i
+    && i\in I, \\
+    & s_i + \ell_i \le 1
+    && i\in I, \\
+    & s_i,\ell_i \in \{0,1\}
+    && i\in I, \\
+    & x_{ij} \ge 0
+    && i\in I,\ j\in J.
+\end{aligned}
+}
+\tag{CFL-C}
+\]
 \paragraph{Family S results.}
 Our assigned seeds are 301, 302, and 303.
 % Family S has 20 sites and 80 customers. Team k uses seeds 100k+1,
@@ -87,7 +128,7 @@ Our assigned seeds are 301, 302, and 303.
 % Before the assigned run, predict how enforcing binary openings will
 % affect cost. Afterward, inspect the fractional y_i values to explain
 % the difference. Include a short Pyomo output excerpt for one team run.
-For family S with ratio 4 and seed 301, we predict that the LP relaxation will have a lower optimal cost than the integer model. We also expect a strict gap because the LP can use part of a site’s capacity and pay only the corresponding fraction of its opening cost. A site that serves only a few nearby customers can be worth opening fractionally in the LP. In the integer model, though, serving those customers from that site requires paying its entire opening cost.
+For family S with ratio 4 and seed 301, we predict that the LP relaxation will have a lower optimal cost than the integer model. We also expect a strict gap because the LP can use part of a site’s capacity and pay only the corresponding fraction of its opening cost. A site that serves only a few nearby customers can be worth opening fractionally in the LP. In the integer model, though, serving those customers from that site requires paying its entire opening cost. 
 
 \begin{center}
 \begin{tabular}{lrrrr}
@@ -142,7 +183,55 @@ Thus $x_{ij}\le d_j y_i$ in both cases. Now, we give a fractional solution to th
 which is clearly violated. Our example above shows that the LP relaxation of (CFL) does not imply $x_{ij}\le d_jy_i$ in general. However, the LP relaxation of $(\mathrm{CFL}^+)$ implies the inequality because it includes this constraint for every site-customer pair.
 \hfill$\square$
 \end{proofbox}
+Now, we propose a strengthening of (CFL-C) following the same approach.
+\begin{proposition}
+For Track C, we strengthen (CFL-C) by adding
+\[
+    x_{ij} \le d_j(s_i+\ell_i), \qquad i\in I,\ j\in J.
+\]
+We call the resulting formulation $(\mathrm{CFL\text{-}C}^{+})$.
+\end{proposition}
 
+In the base model, $y_i$ indicates whether site $i$ is open.
+In Track C, $s_i+\ell_i$ plays the same role: it equals one if
+the site is built at either size and zero if it is closed. The
+new inequality therefore limits the share of customer $j$'s demand
+that site $i$ can supply, whichever size is chosen.
+
+\begin{proofbox}
+\emph{Proof.}
+Let $(x,s,\ell)$ be feasible for (CFL-C), and fix $i\in I$ and
+$j\in J$. Since $s_i$ and $\ell_i$ are binary and $s_i+\ell_i\le 1$,
+their sum is either zero or one. If $s_i+\ell_i=0$, then both
+variables are zero, so nonnegativity and the capacity constraint give
+\[
+    0 \le x_{ij} \le \sum_{k\in J} x_{ik}
+    \le q_i s_i + q_i^{(2)}\ell_i = 0.
+\]
+If $s_i+\ell_i=1$, then nonnegativity and the demand constraint give
+\[
+    x_{ij} \le \sum_{h\in I} x_{hj}
+    = d_j = d_j(s_i+\ell_i).
+\]
+Thus $x_{ij}\le d_j(s_i+\ell_i)$ in both cases.
+
+Now consider the same one-site example, with small capacity
+$q_1=100$, large capacity $q_1^{(2)}=150$, and customer demand
+$d_1=20$. Set $s_1=1/5$, $\ell_1=0$, and $x_{11}=20$. The LP
+opens one fifth of the small facility and ships all 20 units to
+the customer. Both size variables lie in $[0,1]$, their sum is
+$1/5\le 1$, and the shipment meets demand. The capacity constraint
+also holds since $20\le 100(1/5)+150(0)=20$. However, the new
+inequality requires
+\[
+    x_{11} \le d_1(s_1+\ell_1) = 20(1/5+0) = 4,
+\]
+which is violated by the shipment of 20 units. Hence the LP
+relaxation of (CFL-C) does not imply the inequality in general.
+The LP relaxation of $(\mathrm{CFL\text{-}C}^{+})$ implies it
+because it includes this bound for every site--customer pair.
+\hfill$\square$
+\end{proofbox}
 \subsection*{(c) Single-site convex hull}
 % State your linear description of conv(X) and prove both inclusions.
 % For the reverse inclusion, explain how a point with 0 < y < 1 can be
