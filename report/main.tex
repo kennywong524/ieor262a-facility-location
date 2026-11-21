@@ -1,5 +1,10 @@
 \documentclass[11pt]{article}
-\usepackage[margin=0.6in]{geometry}
+\usepackage[
+    top=0.5in,
+    bottom=0.65in,
+    left=0.4in,
+    right=0.4in
+]{geometry}
 \usepackage{amsmath,amssymb,booktabs,amsthm}
 \usepackage[breakable]{tcolorbox}
 \usepackage{fvextra}
@@ -8,7 +13,7 @@
 \newtheorem{proposition}{Proposition}
 \tcolorboxenvironment{proposition}{
     breakable, colback=white, colframe=black!50,
-    boxrule=0.3pt, sharp corners
+    boxrule=0.4pt, sharp corners
 }
 \newtcolorbox{proofbox}{
     breakable, colback=white, colframe=black!50,
@@ -33,22 +38,17 @@ Bounds, Duality, and Branch and Bound \hfill Track C: Modular Capacity\par
 
 \section{Base model}
 Let $I$ be the set of candidate sites and $J$ the set of customers. Opening site $i$ costs $f_i$ and provides capacity $q_i$. Customer $j$ has demand $d_j$, and shipping one unit from $i$ to $j$ costs $c_{ij}$. We choose which sites to open ($y_i$) and how much to ship from each site to each customer ($x_{ij}$).
-
+{
 \begin{equation}
 \tag{CFL}
-\begin{aligned}
-\min_{x,y}\quad
-    & \sum_{i\in I} f_i y_i
-      + \sum_{i\in I}\sum_{j\in J} c_{ij}x_{ij} \\
-\text{s.t.}\quad
-    & \sum_{i\in I} x_{ij} = d_j
-    && j\in J, \\
-    & \sum_{j\in J} x_{ij} \le q_i y_i
-    && i\in I, \\
-    & x_{ij}\ge 0,\quad y_i\in\{0,1\}
-    && i\in I,\ j\in J.
-\end{aligned}
+\textstyle
+\min_{x,y}\ \sum_i f_i y_i + \sum_{i,j} c_{ij}x_{ij}
+\quad \text{s.t.}\quad
+\sum_i x_{ij}=d_j\ (\forall j),\quad
+\sum_j x_{ij}\le q_i y_i\ (\forall i),\quad
+x\ge 0,\quad y\in\{0,1\}^{|I|}.
 \end{equation}
+}
 
 \subsection*{(a) Extension and a stronger formulation}
 % Name the chosen track: A (single sourcing), B (siting rules), or
@@ -56,9 +56,7 @@ Let $I$ be the set of candidate sites and $J$ the set of customers. Opening site
 % Then define any new variables and write the changes to (CFL).
 We choose Track C (modular capacity). At each candidate site $i\in I$,
 we may build a small facility, a large facility, or leave the site closed. A small facility at site $i$ has capacity $q_i$ and fixed cost $f_i$. A large facility at the same site has capacity
-$q_i^{(2)}$ and fixed cost $f_i^{(2)}$.
-
-For each $i\in I$, define the binary decision variables
+$q_i^{(2)}$ and fixed cost $f_i^{(2)}$. For each $i\in I$, define the binary decision variables
 \[
 s_i =
 \begin{cases}
@@ -73,9 +71,7 @@ s_i =
 \end{cases}
 \]
 We impose $s_i+\ell_i\le 1$ for each $i\in I$, so at most one
-facility size may be chosen at a site. The choice $(s_i,\ell_i)=(0,0)$
-leaves site $i$ closed. As in (CFL), $x_{ij}\ge 0$ denotes the
-amount shipped from site $i\in I$ to customer $j\in J$. We formulate the modular capacity problem as
+facility size may be chosen at a site. We formulate the modular capacity problem as
 \[
 \boxed{
 \begin{aligned}
@@ -94,8 +90,8 @@ amount shipped from site $i\in I$ to customer $j\in J$. We formulate the modular
     & x_{ij} \ge 0
     && i\in I,\ j\in J.
 \end{aligned}
-}
 \tag{CFL-C}
+}
 \]
 
 \emph{Prediction.}
@@ -110,23 +106,19 @@ Thus, by opening half a large facility, the LP can obtain the same
 capacity as one small facility and pay about 20\% less in fixed cost.
 
 \emph{Result.}
-As predicted, requiring binary openings raised the base model's
-optimal cost by $9{,}452.03$. For example, the LP shipped 258 units
-from site 1 and paid only $y_1=258/599\approx 0.431$ of its fixed
-cost. The integer solution closed site 1 and opened sites 5, 7,
-and 9. Track C lowered the LP objective to $34{,}970.51$ by using
-fractional large facilities. Its integer optimum remained
-$49{,}932.72$, with small facilities at the same three sites. As predicted, the LP cost fell from $40{,}480.69$ in the base model
-to $34{,}970.51$ in Track C. The integer optimum stayed at
-$49{,}932.72$ because the optimal Track C solution still used only
-small facilities at sites 5, 7, and 9.
+As predicted, requiring binary openings raised the base optimum by
+$9{,}452.03$. The LP shipped 258 units from site~1 and paid only
+$258/599 \approx 43.1\%$ of its fixed cost. The integer solution closed
+that site. In Track C, fractional large facilities lowered the LP
+optimum from $40{,}480.69$ to $34{,}970.51$. Both integer models
+attained $49{,}932.72$ by opening sites 5, 7, and 9, all small in
+Track C.
 
 \emph{Pyomo output for (CFL) and (CFL-C):}
 
 \begin{proofbox}
-\begin{Verbatim}[breaklines=true,fontsize=\small]
-Family S | ratio 4 | seed 301 | site IDs are zero-based
-Gurobi options: Presolve=0, Cuts=0, Heuristics=0
+\begin{Verbatim}[breaklines=true,fontsize=\fontsize{8}{7.2}\selectfont]
+Family S | ratio 4 | seed 301 | site IDs are zero-based | Gurobi options: Presolve=0, Cuts=0, Heuristics=0
 
 CFL: LP = 40480.69, IP = 49932.72, LP gap = 18.93%
 IP open sites: [5, 7, 9]
@@ -175,7 +167,7 @@ Thus $x_{ij}\le d_j y_i$ in both cases. Now, we give a fractional solution to th
 \[
     x_{11} \le d_1 y_1 = 20(1/5)=4,
 \]
-which is clearly violated. Our example above shows that the LP relaxation of (CFL) does not imply $x_{ij}\le d_jy_i$ in general. However, the LP relaxation of $(\mathrm{CFL}^+)$ implies the inequality because it includes this constraint for every site-customer pair.
+which is clearly violated. This example shows that the LP relaxation of (CFL) does not imply $x_{ij}\le d_jy_i$ in general. However, the LP relaxation of $(\mathrm{CFL}^+)$ implies the inequality because it includes this constraint for every site-customer pair.
 \hfill$\square$
 \end{proofbox}
 Now, we propose a strengthening of (CFL-C) following the same approach.
@@ -196,7 +188,7 @@ that site $i$ can supply, whichever size is chosen.
 \emph{Proof.}
 Let $(x,s,\ell)$ be feasible for (CFL-C), and fix $i\in I$ and
 $j\in J$. Since $s_i$ and $\ell_i$ are binary and $s_i+\ell_i\le 1$,
-their sum is either zero or one. If $s_i+\ell_i=0$, then both
+their sum is either 0 or 1. If $s_i+\ell_i=0$, then both
 variables are zero, so nonnegativity and the capacity constraint give
 \[
     0 \le x_{ij} \le \sum_{k\in J} x_{ik}
@@ -209,7 +201,7 @@ If $s_i+\ell_i=1$, then nonnegativity and the demand constraint give
 \]
 Thus $x_{ij}\le d_j(s_i+\ell_i)$ in both cases.
 
-Now consider the same one-site example, with small capacity
+Consider the following one-site, one-customer counterexample, with small capacity
 $q_1=100$, large capacity $q_1^{(2)}=150$, and customer demand
 $d_1=20$. Set $s_1=1/5$, $\ell_1=0$, and $x_{11}=20$. The LP
 opens one fifth of the small facility and ships all 20 units to
@@ -261,8 +253,7 @@ sum to one. By Definitions~2.4.2 and~2.4.3, $(x,y)$ is in
 $\operatorname{conv}(X)$. Since $(x,y)\in P$ was arbitrary,
 $P\subseteq\operatorname{conv}(X)$.\qed
 \end{proofbox}
-
-
+\small{\emph{AI usage statement: Generative AI was utilized exclusively to assist with formatting this report and the accompanying repository. All underlying code, methodology, and findings are entirely the authors' own work.}}
 \section{Lagrangian relaxation}
 
 The demand equations link the sites: if one facility ships less to a
