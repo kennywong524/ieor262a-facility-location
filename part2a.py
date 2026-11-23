@@ -1,62 +1,80 @@
 from cfl_data import family
-from cfl_model import GUROBI_SETTINGS, build_cfl, solve
 
+def evaluate_w(lam, seed, ratio, family_name="S", include_x_bounds=True):
+    inst = family(family_name, ratio=ratio, seed=seed)
 
-def evaluate_w(lam, seed, ratio):
-    """
-    Evaluate the Lagrangian dual function w(lambda)
-    for the Capacitated Facility Location Problem.
-
-    Parameters
-    ----------
-    lam : dict
-        Lagrangian multipliers, indexed by customer j.
-    inst : dict
-        Problem instance containing I, J, f, c, d and q.
-
-    Returns
-    -------
-    float
-        Value of the Lagrangian dual function.
-    """
-
-    inst = family("S", ratio=ratio, seed=seed)
-    I = inst['I']
-    J = inst['J']
+    I = inst["I"]
+    J = inst["J"]
 
     if lam is None:
-        lam = {j: 1.0 for j in J} # this is arbitrary right now, vector of 1's
+        lam = {j: 0.0 for j in J}
 
     # Constant part of the Lagrangian
-    w = sum(lam[j] * inst['d'][j] for j in J)
+    w = sum(lam[j] * inst["d"][j] for j in J)
 
-    # Solve one independent problem per facility
+    # Store optimal allocations and opening decisions
+    x_sol = {(i, j): 0.0 for i in I for j in J}
+    y_sol = {}
+
+    # Independent problem per facility
     for i in I:
+        # Reduced costs
+        reduced_costs = {j: inst["c"][i, j] - lam[j] for j in J}
+
         # Sort customers by increasing reduced cost
-        order = sorted(J, key=lambda j: inst['c'][i, j] - lam[j])
-        remaining = inst['q'][i] # initialize
-        transportation_cost = 0.0 # intitialize
+        order = sorted(J, key=lambda j: reduced_costs[j])
 
-        # Greedy continuous knapsack
-        for j in order:
-            reduced_cost = inst['c'][i, j] - lam[j]
+        remaining = inst["q"][i]
+        transportation_cost = 0.0
+        allocations = {}
 
-            # Stop when reduced costs become nonnegative
-            if reduced_cost >= 0:
-                break
+        if include_x_bounds:
+            # Continuous knapsack with upper bounds x_ij <= d_j
+            for j in order:
+                rc = reduced_costs[j]
+                if rc >= 0:
+                    break
+                allocation = min(inst["d"][j], remaining)
 
-            # Allocate as much as possible
-            x = min(inst['d'][j], remaining)
-            transportation_cost += reduced_cost * x
-            remaining -= x
+                allocations[j] = allocation
+                transportation_cost += rc * allocation
 
-            if remaining <= 0:
-                break
-        # Compare opening and closing the facility
-        open_cost = inst['f'][i] + transportation_cost
-        w += min(0, open_cost)
+                remaining -= allocation
 
-    return w
+                if remaining <= 1e-9:
+                    break
+
+        else:
+            # No upper bounds: allocate all capacity
+            # to the customer with the smallest reduced cost
+            j_best = order[0]
+
+            if reduced_costs[j_best] < 0:
+                allocations[j_best] = inst["q"][i]
+                transportation_cost = (reduced_costs[j_best] * inst["q"][i])
+
+        # Compare opening versus closing
+        open_cost = inst["f"][i] + transportation_cost
+
+        if open_cost < 0:
+            y_sol[i] = 1
+            w += open_cost
+            for j, allocation in allocations.items():
+                x_sol[i, j] = allocation
+        else:
+            y_sol[i] = 0
+    return w, x_sol, y_sol
+
 
 if __name__ == "__main__":
-    print(evaluate_w(None, seed=301, ratio=4))
+    # 2(a)-(c): with upper bounds
+    w, x, y = evaluate_w(lam=None, seed=301, ratio=4, include_x_bounds=True)
+    x_nonzero = {k: v for k, v in x.items() if v > 1e-9}
+    y_open = {i: val for i, val in y.items() if val == 1}
+    print("With x bounds w:", w, "x=", x_nonzero, "y=", y_open)
+
+    # 2(d): without upper bounds
+    w, x, y = evaluate_w(lam=None, seed=301, ratio=4, include_x_bounds=False)
+    x_nonzero = {k: v for k, v in x.items() if v > 1e-9}
+    y_open = {i: val for i, val in y.items() if val == 1}
+    print("Without x bounds w:", w, "x=", x_nonzero, "y=", y_open)
