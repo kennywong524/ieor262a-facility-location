@@ -16,14 +16,16 @@ def fractional_openings(variable):
     return ", ".join(entries) or "none"
 
 
-def run_instance(seed, ratio, solver_log=False):
+def run_instance(seed, ratio, solver_log=False, *, strengthened=False):
     inst = family("S", ratio=ratio, seed=seed)
     print(f"Family S | ratio {ratio} | seed {seed} | site IDs are zero-based")
     print("Gurobi options:", ", ".join(f"{k}={v}" for k, v in GUROBI_SETTINGS.items()))
     for name, modular in (("CFL", False), ("CFL-C", True)):
+        if strengthened:
+            name += "+"
         prefix = f"{name}_S_r{ratio}_s{seed}"
-        lp = build_cfl(inst, relax=True, modular=modular)
-        ip = build_cfl(inst, modular=modular)
+        lp = build_cfl(inst, relax=True, modular=modular, strengthened=strengthened)
+        ip = build_cfl(inst, modular=modular, strengthened=strengthened)
         lp_value, _, _ = solve(lp, display=solver_log, lp_file=prefix + "_lp.lp", require_optimal=True)
         ip_value, _, _ = solve(ip, display=solver_log, lp_file=prefix + "_ip.lp", require_optimal=True)
         gap = (ip_value - lp_value) / ip_value
@@ -43,11 +45,13 @@ def main():
     parser.add_argument("--seed", type=int, nargs="+", default=[301])
     parser.add_argument("--ratio", type=int, nargs="+", choices=(2, 4, 8), default=[4])
     parser.add_argument("--solver-log", action="store_true", help="Show Gurobi's full logs.")
+    parser.add_argument("--strengthened", action="store_true",
+                        help="Add the Part 1(b) shipment bounds to both formulations.")
     args = parser.parse_args()
     for index, (seed, ratio) in enumerate(product(args.seed, args.ratio)):
         if index:
             print()
-        run_instance(seed, ratio, args.solver_log)
+        run_instance(seed, ratio, args.solver_log, strengthened=args.strengthened)
 
 
 if __name__ == "__main__":

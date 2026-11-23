@@ -32,8 +32,8 @@ GUROBI_SETTINGS = {'Presolve': 0, 'Cuts': 0, 'Heuristics': 0}
 INSTANCES = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instances')
 
 
-def build_cfl(inst, relax=False, *, modular=False):
-    """Build (CFL) or Track C's (CFL-C), with an optional LP relaxation."""
+def build_cfl(inst, relax=False, *, modular=False, strengthened=False):
+    """Build CFL or Track C, optionally relaxing openings or adding the Part 1(b) bounds."""
     M = pyo.ConcreteModel()
     M.I = pyo.Set(initialize=inst['I'])
     M.J = pyo.Set(initialize=inst['J'])
@@ -54,7 +54,12 @@ def build_cfl(inst, relax=False, *, modular=False):
         + sum(inst['c'][i, j] * M.x[i, j] for i in M.I for j in M.J))
     M.demand = pyo.Constraint(M.J, rule=lambda M, j: sum(M.x[i, j] for i in M.I) == inst['d'][j])
     M.capacity = pyo.Constraint(M.I, rule=lambda M, i: sum(M.x[i, j] for j in M.J) <= capacity[i])
-    # TODO (Part 1(b)): add the inequalities of your strengthened formulation (CFL+)
+    if strengthened:
+        def shipment_bound(m, i, j):
+            opening = m.s[i] + m.ell[i] if modular else m.y[i]
+            return m.x[i, j] <= inst['d'][j] * opening
+
+        M.shipment_bound = pyo.Constraint(M.I, M.J, rule=shipment_bound)
     if relax:
         M.dual = pyo.Suffix(direction=pyo.Suffix.IMPORT)   # LP duals, read after solving
     return M

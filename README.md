@@ -20,15 +20,27 @@ The script solves the LP relaxation and the integer model for each formulation u
 
 In the base LP, site 1 ships 258 units at an opening of $258/599\approx 0.4307$. The base IP closes that site. Track C uses fractional large facilities in the LP, but its integer solution on this instance uses only small ones. The reported LP gap is $(z_{\mathrm{IP}}-z_{\mathrm{LP}})/z_{\mathrm{IP}}$.
 
+## Reproduce Part 1(b)
+
+The `--strengthened` option adds a shipment bound for every site $i$ and customer $j$. CFL+ uses $x_{ij}\le d_j y_i$. Track C uses $x_{ij}\le d_j(s_i+\ell_i)$. The option applies to both the LP relaxation and the integer model.
+
+```bash
+python part1a.py --strengthened --seed 301 --ratio 4
+python -m unittest discover -s tests -v
+```
+
+For this instance, the strengthened LP objectives are 48,696.70 for CFL+ and 48,538.06 for CFL-C+. Both integer objectives are 49,932.72.
+
 ## Files
 
 | File | Purpose |
 | --- | --- |
 | `cfl_data.py` | Course instance generator and extension data |
 | `cfl_model.py` | Course Pyomo starter, LP export, Gurobi settings, and branching example |
-| `part1a.py` | Runs both Part 1(a) formulations and prints objectives, site choices, and fractional openings |
+| `part1a.py` | Runs the Part 1(a) or strengthened Part 1(b) models and prints objectives and site choices |
 | `tests/test_setup.py` | Reproduces the setup row in the report |
 | `tests/test_part1a.py` | Checks the Part 1(a) solutions on Team 3's family S instances |
+| `tests/test_part1b.py` | Checks the fractional counterexample, shipment bounds, and integer objectives on all nine Team 3 instances |
 | `report/main.tex` | Single-file LaTeX report with Parts 1–3 and writing notes |
 
 Compile from the repository root with `cd report` and `latexmk -pdf main.tex`, or upload `report/main.tex` to Overleaf.
