@@ -1,8 +1,6 @@
 from cfl_data import family
 
-def evaluate_w(lam, seed, ratio, family_name="S", include_x_bounds=True):
-    inst = family(family_name, ratio=ratio, seed=seed)
-
+def evaluate_w(lam, inst, include_x_bounds=True):
     I = inst["I"]
     J = inst["J"]
 
@@ -68,13 +66,14 @@ def evaluate_w(lam, seed, ratio, family_name="S", include_x_bounds=True):
 
 if __name__ == "__main__":
     # 2(a)-(c): with upper bounds
-    w, x, y = evaluate_w(lam=None, seed=301, ratio=4, include_x_bounds=True)
+    inst = family('S', seed=301, ratio=4)
+    w, x, y = evaluate_w(lam=None, inst=inst, include_x_bounds=True)
     x_nonzero = {k: v for k, v in x.items() if v > 1e-9}
     y_open = {i: val for i, val in y.items() if val == 1}
     print("With x bounds w:", w, "x=", x_nonzero, "y=", y_open)
 
     # 2(d): without upper bounds
-    w, x, y = evaluate_w(lam=None, seed=301, ratio=4, include_x_bounds=False)
+    w, x, y = evaluate_w(lam=None, inst=inst, include_x_bounds=False)
     x_nonzero = {k: v for k, v in x.items() if v > 1e-9}
     y_open = {i: val for i, val in y.items() if val == 1}
     print("Without x bounds w:", w, "x=", x_nonzero, "y=", y_open)
